@@ -1,0 +1,12 @@
+{:paths ["src"]
+ :version "0.1.0"
+ ;; kotoba-lang/katex — native TeX-math parser + AST + MathML renderer.
+ ;; Zero third-party runtime deps; every namespace .cljc
+ ;; (JVM / SCI / ClojureScript / GraalVM / kotoba-WASM).
+ :deps {}
+ :aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}}}
