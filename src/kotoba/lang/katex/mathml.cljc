@@ -10,9 +10,13 @@
 
   Each node is `[tag & children]` where `tag` is a MathML element keyword.
   Leaf tags (`:mi :mn :mo :mtext`) carry a single string child; structural
-  tags (`:mrow :mfrac :msup :msub :msubsup :msqrt :mroot`) carry child
-  nodes. No attribute map is threaded through — v1 needs none of the
-  optional MathML attributes to render the supported AST subset."
+  tags (`:mrow :mfrac :msup :msub :msubsup :msqrt :mroot :mover`) carry
+  child nodes. No attribute map is threaded through — v1 needs none of the
+  optional MathML attributes to render the supported AST subset (an
+  accent's `<mover>` relies on the accent character itself falling in
+  MathML's own operator-dictionary combining-diacritic range for
+  renderers to infer `accent=\"true\"` positioning, rather than this
+  library emitting the attribute explicitly)."
   (:require [clojure.string :as str]))
 
 (def ^:private leaf-tags #{:mi :mn :mo :mtext})
@@ -36,6 +40,7 @@
         :sqrt (if (nil? a)
                 [:msqrt (ast->mathml b)]
                 [:mroot (ast->mathml b) (ast->mathml a)])
+        :accent [:mover (ast->mathml b) [:mo a]]
         (throw (ex-info "kotoba.lang.katex.mathml: unrecognized AST node"
                          {:node node}))))))
 

@@ -32,8 +32,8 @@
 
 (deftest unknown-command-fallback
   (is (= [:row [[:unknown "foo"]]] (parse/parse "\\foo")))
-  (is (= [:row [[:sym "a"] [:unknown "bar"] [:sym "b"]]]
-         (parse/parse "a\\bar b"))))
+  (is (= [:row [[:sym "a"] [:unknown "qux"] [:sym "b"]]]
+         (parse/parse "a\\qux b"))))
 
 (deftest grouping
   (is (= [:row [[:group [[:sym "x"] [:op "+"] [:sym "y"]]]]]
@@ -63,6 +63,19 @@
          (parse/parse "\\sqrt{x+1}")))
   (is (= [:row [[:sqrt [:num "3"] [:sym "x"]]]] (parse/parse "\\sqrt[3]{x}")))
   (is (= [:row [[:sqrt nil [:sym "x"]]]] (parse/parse "\\sqrt x"))))
+
+(deftest accent-commands
+  (is (= [:row [[:accent "\u0302" [:sym "x"]]]] (parse/parse "\\hat{x}")))
+  (is (= [:row [[:accent "\u0302" [:sym "x"]]]] (parse/parse "\\hat x"))
+      "brace-less single-token shorthand, same as \\sqrt")
+  (is (= [:row [[:accent "\u0304" [:sym "x"]]]] (parse/parse "\\bar{x}")))
+  (is (= [:row [[:accent "\u20D7" [:sym "v"]]]] (parse/parse "\\vec{v}")))
+  (is (= [:row [[:accent "\u0307" [:sym "x"]]]] (parse/parse "\\dot{x}")))
+  (is (= [:row [[:accent "\u0303" [:sym "x"]]]] (parse/parse "\\tilde{x}")))
+  (is (= [:row [[:accent "\u0308" [:sym "x"]]]] (parse/parse "\\ddot{x}")))
+  (is (= [:row [[:accent "\u0302" [:group [[:sym "x"] [:op "+"] [:num "1"]]]]]]
+         (parse/parse "\\hat{x+1}"))
+      "an accent's argument parses a whole braced group, not just one atom"))
 
 (deftest sum-with-subscript-and-superscript
   (is (= [:row [[:supsub [:op "∑"]
