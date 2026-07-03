@@ -23,6 +23,8 @@
     [:sub    base sub]          ; base_sub
     [:supsub base sub exp]      ; base^exp_sub and base_sub^exp (either input
                                  ; order collapses to this single node)
+    [:accent char base]        ; \\hat{base}/\\bar{base}/\\vec{base}/etc --
+                                 ; char is the combining Unicode diacritic
     [:unknown \"cmdname\"]      ; an unrecognized \\cmdname (v1 fallback —
                                  ; rendered as literal text by the renderer,
                                  ; never dropped silently)
@@ -39,6 +41,10 @@
   - Superscript `^` and subscript `_`, in either order, combining into a
     single `:supsub` node when both are present on the same base.
   - `\\sqrt{x}` and `\\sqrt[n]{x}`.
+  - Accents: `\\hat \\bar \\vec \\dot \\tilde \\ddot`, each a single-argument
+    command (same brace-or-single-token argument grabbing as `\\sqrt`'s
+    radicand) rendered as MathML `<mover>` with the accent's own combining
+    Unicode diacritic as the over-script.
   - Grouping with `{ ... }`.
   - Greek letters: the common lowercase set (alpha..omega) plus the
     uppercase letters that have a distinct glyph from Latin (Gamma, Delta,
@@ -61,7 +67,8 @@
   ## Explicitly NOT supported in v1
 
   Matrices/arrays (`\\begin{matrix}`...), `\\left`/`\\right` auto-sizing
-  delimiters, accents (`\\hat`, `\\bar`, ...), text mode (`\\text{}`),
+  delimiters, `\\overline` (a variable-width line over a whole expression,
+  distinct from the fixed-width `\\bar` accent above), text mode (`\\text{}`),
   spacing commands (`\\, \\; \\quad`), font commands (`\\mathbf` etc.),
   multi-letter identifiers via `\\mathrm{abc}`, and the long tail of TeX
   math symbols beyond the list above. Full glyph-level layout (font
@@ -92,6 +99,17 @@
    "partial" "∂" "nabla" "∇"
    "subset" "⊂" "supset" "⊃" "cup" "∪" "cap" "∩"
    "cdots" "⋯" "ldots" "…"})
+
+(def accents
+  "TeX single-character accent control words -> the combining Unicode
+  diacritic (written as \\uXXXX escapes, not the literal invisible
+  character, so the source stays legible) used as the MathML <mover>'s
+  own over-script. Each takes one argument (same brace-or-single-token
+  grabbing as \\sqrt's radicand): combining circumflex U+0302 (hat),
+  macron U+0304 (bar), right arrow above U+20D7 (vec), dot above U+0307
+  (dot), tilde U+0303 (tilde), diaeresis U+0308 (ddot)."
+  {"hat" "\u0302" "bar" "\u0304" "vec" "\u20D7"
+   "dot" "\u0307" "tilde" "\u0303" "ddot" "\u0308"})
 
 ;; ---------------------------------------------------------------------------
 ;; character predicates (portable across clj/cljs; no java.lang.Character)
@@ -193,6 +211,8 @@
                             (wrap-row row))))
                 rad (parse-braced-arg! st)]
             [:sqrt idx rad]))
+
+      (contains? accents word) [:accent (get accents word) (parse-braced-arg! st)]
 
       (contains? greek word) [:sym (get greek word)]
       (contains? ops word) [:op (get ops word)]

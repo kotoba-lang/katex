@@ -30,6 +30,7 @@ semantic math markup.
 - Superscript `^` and subscript `_`, in either order, collapsing into one
   `:supsub` node when both apply to the same base (e.g. `\sum_{i=1}^{n}`).
 - `\sqrt{x}` and `\sqrt[n]{x}`.
+- Accents: `\hat \bar \vec \dot \tilde \ddot`, rendered as MathML `<mover>`.
 - Grouping with `{ ... }`.
 - Common Greek letters: lowercase `alpha`..`omega`, plus the uppercase
   letters with a distinct glyph from Latin (`Gamma Delta Theta Lambda Xi Pi
@@ -46,10 +47,12 @@ semantic math markup.
   literal text — never silently dropped.
 
 **Explicitly out of scope for v1:** matrices/arrays, `\left`/`\right`
-auto-sizing delimiters, accents, text mode, spacing/font commands,
-multi-letter identifiers via `\mathrm{}`, and the long tail of TeX symbols
-beyond the list above. See the `kotoba.lang.katex.parse` namespace docstring
-for the exact, authoritative subset.
+auto-sizing delimiters, `\overline` (a variable-width line over a whole
+expression, distinct from the fixed-width `\bar` accent above), text mode,
+spacing/font commands, multi-letter identifiers via `\mathrm{}`, and the
+long tail of TeX symbols beyond the list above. See the
+`kotoba.lang.katex.parse` namespace docstring for the exact, authoritative
+subset.
 
 ## AST shape
 

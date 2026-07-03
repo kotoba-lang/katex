@@ -32,6 +32,12 @@
   (is (= [:mroot [:mi "x"] [:mn "3"]]
          (mathml/ast->mathml [:sqrt [:num "3"] [:sym "x"]]))))
 
+(deftest accent-becomes-mover
+  ;; mover argument order is (base, accent-char) -- base first, matching
+  ;; MathML's own element order (same "base first" convention as msup/msub).
+  (is (= [:mover [:mi "x"] [:mo "\u0302"]]
+         (mathml/ast->mathml [:accent "\u0302" [:sym "x"]]))))
+
 (deftest xml-string-rendering
   (is (= "<mn>3</mn>" (mathml/mathml->str [:mn "3"])))
   (is (= "<mrow><mn>1</mn><mo>+</mo><mn>2</mn></mrow>"
@@ -63,4 +69,9 @@
     (let [ast (parse/parse "\\gftd{x}")]
       (is (= [:row [[:unknown "gftd"] [:sym "x"]]] ast))
       (is (= "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mrow><mtext>\\gftd</mtext><mi>x</mi></mrow></math>"
+             (mathml/ast->mathml-string ast)))))
+  (testing "accent command renders as mover"
+    (let [ast (parse/parse "\\vec{v}")]
+      (is (= [:row [[:accent "\u20D7" [:sym "v"]]]] ast))
+      (is (= "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mrow><mover><mi>v</mi><mo>\u20D7</mo></mover></mrow></math>"
              (mathml/ast->mathml-string ast))))))
