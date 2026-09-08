@@ -75,7 +75,7 @@
   metrics) is out of scope entirely — this library renders through
   MathML instead (see `kotoba.lang.katex.mathml`), letting a MathML-capable
   renderer do glyph layout."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 ;; ---------------------------------------------------------------------------
 ;; command tables
