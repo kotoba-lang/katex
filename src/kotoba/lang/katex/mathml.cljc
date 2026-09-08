@@ -17,7 +17,7 @@
   MathML's own operator-dictionary combining-diacritic range for
   renderers to infer `accent=\"true\"` positioning, rather than this
   library emitting the attribute explicitly)."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def ^:private leaf-tags #{:mi :mn :mo :mtext})
 
@@ -47,11 +47,11 @@
 (defn esc
   "Escape &, <, >, \" for safe MathML/XML text content."
   [s]
-  (-> (str s)
-      (str/replace "&" "&amp;")
-      (str/replace "<" "&lt;")
-      (str/replace ">" "&gt;")
-      (str/replace "\"" "&quot;")))
+  ;; One pass, not a chain. The chain was correct only because `&` happened to
+  ;; come first: any other order double-escapes the `&` that `&lt;` introduces.
+  ;; `escape` never re-reads what it has emitted, so the order of the map
+  ;; cannot matter.
+  (str/escape (str s) {\& "&amp;" \< "&lt;" \> "&gt;" \" "&quot;"}))
 
 (defn mathml->str
   "Render MathML EDN (as produced by `ast->mathml`) to an XML string,
