@@ -102,5 +102,5 @@ io.github.kotoba-lang/katex {:git/sha "<sha>"}
 ## Verify
 
 ```sh
-clojure -M:test
+kbb -M:test
 ```
